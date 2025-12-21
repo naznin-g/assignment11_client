@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useAxiosSecure from '../hooks/useAxiosSecure';
-import useAuth from '../hooks/useAuth';
-import IssueCard from '../Component/IssueCard/IssueCard';
+import useAxiosSecure from '../../hooks/useAxiosSecure';
+import useAuth from '../../hooks/useAuth';
+import IssueCard from '../IssueCard/IssueCard';
 
 const LatestResolvedIssues = () => {
   const [issues, setIssues] = useState([]);

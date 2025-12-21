@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import useAxiosSecure from '../hooks/useAxiosSecure';
+import useAxiosSecure from '../../hooks/useAxiosSecure';
 
 const AdminDashboard = () => {
   const axiosSecure = useAxiosSecure();

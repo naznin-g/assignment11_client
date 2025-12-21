@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import useAuth from '../hooks/useAuth';
-import useAxiosSecure from '../hooks/useAxiosSecure';
+import useAuth from '../../hooks/useAuth';
+import useAxiosSecure from '../../hooks/useAxiosSecure';
 import { toast } from 'react-hot-toast';
-import { Button } from '../Component/UI/Button';
-import Timeline from '../Component/Timeline/Timeline';
 
 const IssueDetails = () => {
   const { id } = useParams();
@@ -15,24 +13,19 @@ const IssueDetails = () => {
   const [issue, setIssue] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Redirect to login if user is not logged in
   useEffect(() => {
     if (!user?.email) {
       navigate('/login', { state: { from: `/issue/${id}` } });
     }
   }, [user, navigate, id]);
 
-  // Fetch issue details
   useEffect(() => {
     axiosSecure.get(`/issues/${id}`)
       .then(res => {
         setIssue(res.data);
         setLoading(false);
       })
-      .catch(err => {
-        console.error(err);
-        setLoading(false);
-      });
+      .catch(() => setLoading(false));
   }, [id, axiosSecure]);
 
   if (loading) return <p>Loading...</p>;
@@ -42,115 +35,101 @@ const IssueDetails = () => {
   const isStaffAssigned = user.role === 'staff' && issue.assignedStaffEmail === user.email;
   const isAdmin = user.role === 'admin';
 
-  // Citizen actions
-  const handleEdit = () => {
-    navigate(`/dashboard/edit-issue/${id}`);
-  };
+  const handleEdit = () => navigate(`/dashboard/edit-issue/${id}`);
 
-  const handleDelete = () => {
-    axiosSecure.delete(`/issues/${id}`)
-      .then(() => {
-        toast.success('Issue deleted successfully!');
-        navigate('/dashboard/my-issues');
-      })
-      .catch(err => toast.error('Failed to delete issue'));
+  const handleDelete = async () => {
+    await axiosSecure.delete(`/issues/${id}`);
+    toast.success('Issue deleted');
+    navigate('/dashboard/my-issues');
   };
 
   const handleUpvote = async () => {
-    if (user.email === issue.ownerEmail) return toast.error("Cannot upvote your own issue");
-
-    try {
-      await axiosSecure.post(`/issues/${id}/upvote`);
-      setIssue(prev => ({ ...prev, upvotes: prev.upvotes + 1 }));
-      toast.success("Upvoted successfully!");
-    } catch (err) {
-      toast.error("Failed to upvote issue");
-    }
+    if (isOwner) return toast.error("Cannot upvote your own issue");
+    await axiosSecure.post(`/issues/${id}/upvote`);
+    setIssue(prev => ({ ...prev, upvotes: prev.upvotes + 1 }));
   };
 
   const handleBoost = async () => {
-    try {
-      const res = await axiosSecure.post(`/issues/${id}/boost-payment`);
-      window.location.href = res.data.paymentUrl;
-    } catch (err) {
-      toast.error("Failed to initiate boost payment");
-    }
+    const res = await axiosSecure.post(`/issues/${id}/boost-payment`);
+    window.location.href = res.data.paymentUrl;
   };
 
-  // Staff actions
-  const handleStatusChange = (newStatus) => {
-    axiosSecure.patch(`/issues/${id}/status`, { status: newStatus })
-      .then(() => {
-        setIssue(prev => ({ ...prev, status: newStatus }));
-        toast.success("Status updated!");
-      })
-      .catch(() => toast.error("Failed to update status"));
+  const handleStatusChange = async (status) => {
+    await axiosSecure.patch(`/issues/${id}/status`, { status });
+    setIssue(prev => ({ ...prev, status }));
   };
 
-  // Admin actions
-  const handleAssignStaff = async (staffEmail) => {
-    try {
-      await axiosSecure.patch(`/issues/${id}/assign`, { staffEmail });
-      setIssue(prev => ({ ...prev, assignedStaffEmail: staffEmail }));
-      toast.success("Staff assigned!");
-    } catch {
-      toast.error("Failed to assign staff");
-    }
-  };
-
-  const handleReject = () => {
-    axiosSecure.patch(`/issues/${id}/status`, { status: 'Rejected' })
-      .then(() => {
-        setIssue(prev => ({ ...prev, status: 'Rejected' }));
-        toast.success("Issue rejected");
-      })
-      .catch(() => toast.error("Failed to reject issue"));
+  const handleAssignStaff = async () => {
+    await axiosSecure.patch(`/issues/${id}/assign`, { staffEmail: 'staff@example.com' });
+    toast.success('Staff assigned');
   };
 
   return (
     <div className="p-8 max-w-5xl mx-auto">
-      <div className="card p-6 shadow-lg bg-base-100">
-        <h1 className="text-3xl font-bold mb-2">{issue.title}</h1>
-        <p className="text-gray-600 mb-2">{issue.category} | Priority: <span className={issue.priority === 'high' ? 'text-red-600 font-semibold' : 'text-gray-600'}>{issue.priority}</span></p>
-        <p className="text-gray-600 mb-4">Status: <span className={`font-semibold ${issue.status === 'resolved' ? 'text-green-600' : 'text-gray-600'}`}>{issue.status}</span></p>
-        <p className="mb-2">{issue.description}</p>
-        <p className="mb-2">Location: {issue.location}</p>
-        <p className="mb-2">Upvotes: {issue.upvotes || 0}</p>
-        {issue.assignedStaffEmail && <p className="mb-2">Assigned Staff: {issue.assignedStaffName || issue.assignedStaffEmail}</p>}
 
-        {/* Citizen Actions */}
+      {/* Issue Card */}
+      <div className="card bg-base-100 shadow-lg p-6">
+        <h1 className="text-3xl font-bold">{issue.title}</h1>
+        <p className="text-gray-600">{issue.category} | Priority: {issue.priority}</p>
+        <p className="mb-4">Status: <span className="font-semibold">{issue.status}</span></p>
+
+        <p>{issue.description}</p>
+        <p>Location: {issue.location}</p>
+        <p>Upvotes: {issue.upvotes || 0}</p>
+
+        {/* Citizen */}
         {isOwner && (
           <div className="flex gap-2 mt-4">
-            {issue.status === 'Pending' && <Button onClick={handleEdit}>Edit Issue</Button>}
-            {issue.status === 'Pending' && <Button onClick={handleDelete}>Delete Issue</Button>}
-            {issue.priority !== 'high' && <Button onClick={handleBoost}>Boost Issue</Button>}
-            <Button onClick={handleUpvote}>Upvote</Button>
+            {issue.status === 'Pending' && <button className="btn btn-outline" onClick={handleEdit}>Edit</button>}
+            {issue.status === 'Pending' && <button className="btn btn-error" onClick={handleDelete}>Delete</button>}
+            {issue.priority !== 'high' && <button className="btn btn-warning" onClick={handleBoost}>Boost</button>}
+            <button className="btn btn-secondary" onClick={handleUpvote}>Upvote</button>
           </div>
         )}
 
-        {/* Staff Actions */}
+        {/* Staff */}
         {isStaffAssigned && (
           <div className="flex gap-2 mt-4">
-            {['In-Progress', 'Resolved', 'Closed'].map(status => (
-              <Button key={status} onClick={() => handleStatusChange(status)}>{status}</Button>
+            {['In-Progress', 'Resolved', 'Closed'].map(s => (
+              <button key={s} className="btn btn-primary" onClick={() => handleStatusChange(s)}>
+                {s}
+              </button>
             ))}
           </div>
         )}
 
-        {/* Admin Actions */}
+        {/* Admin */}
         {isAdmin && !issue.assignedStaffEmail && (
           <div className="flex gap-2 mt-4">
-            <Button onClick={() => handleAssignStaff('staff@example.com')}>Assign Staff</Button>
-            {issue.status === 'Pending' && <Button onClick={handleReject}>Reject Issue</Button>}
+            <button className="btn btn-accent" onClick={handleAssignStaff}>Assign Staff</button>
           </div>
         )}
       </div>
 
       {/* Timeline */}
-      <div className="mt-6">
-        <h2 className="text-2xl font-semibold mb-2">Issue Timeline</h2>
-        <Timeline entries={issue.timeline} />
+      <div className="mt-8">
+        <h2 className="text-2xl font-semibold mb-4">Issue Timeline</h2>
+
+        <ul className="timeline timeline-vertical">
+          {issue.timeline?.map((item, index) => (
+            <li key={index}>
+              {index !== 0 && <hr />}
+              <div className="timeline-start text-sm">
+                {new Date(item.createdAt).toLocaleDateString()}
+              </div>
+              <div className="timeline-middle">
+                <div className="badge badge-success"></div>
+              </div>
+              <div className="timeline-end timeline-box">
+                <p className="font-semibold capitalize">{item.status}</p>
+                <p className="text-sm text-gray-500">{item.details}</p>
+              </div>
+              <hr />
+            </li>
+          ))}
+        </ul>
       </div>
+
     </div>
   );
 };

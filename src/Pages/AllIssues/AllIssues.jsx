@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import IssueCard from './IssueCard';
-import { useAuth } from '../hooks/useAuth';
+import IssueCard from '../IssueCard/IssueCard';
+import  useAuth  from '../../hooks/useAuth';
 
 const AllIssues = () => {
     const { user, isLoggedIn } = useAuth();

@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import useAxiosSecure from '../hooks/useAxiosSecure';
+import useAxiosSecure from '../../hooks/useAxiosSecure';
 import Swal from 'sweetalert2';
 
-const AdminAllIssues = () => {
+const AdminAllIssue = () => {
   const axiosSecure = useAxiosSecure();
+
+  // Modal state
   const [selectedIssue, setSelectedIssue] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState('');
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Fetch all issues
   const { data: issues = [], refetch } = useQuery({
@@ -27,13 +33,23 @@ const AdminAllIssues = () => {
     },
   });
 
-  // Open modal to assign staff
+  // Sort boosted issues on top
+  const sortedIssues = [...issues].sort(
+    (a, b) => (b.priority === 'high' ? 1 : 0) - (a.priority === 'high' ? 1 : 0)
+  );
+
+  // Pagination calculations
+  const totalPages = Math.ceil(sortedIssues.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedIssues = sortedIssues.slice(startIndex, endIndex);
+
+  // Modal handlers
   const handleAssignClick = (issue) => {
     setSelectedIssue(issue);
     setShowModal(true);
   };
 
-  // Confirm staff assignment
   const handleAssignConfirm = async () => {
     if (!selectedStaff) return Swal.fire('Select staff', '', 'warning');
     try {
@@ -67,9 +83,6 @@ const AdminAllIssues = () => {
     });
   };
 
-  // Sort boosted issues on top
-  const sortedIssues = [...issues].sort((a, b) => b.priority === 'high' - a.priority === 'high');
-
   return (
     <div className="p-8">
       <h2 className="text-3xl mb-4">All Issues</h2>
@@ -87,12 +100,16 @@ const AdminAllIssues = () => {
             </tr>
           </thead>
           <tbody>
-            {sortedIssues.map(issue => (
+            {paginatedIssues.map(issue => (
               <tr key={issue._id}>
                 <td>{issue.title}</td>
                 <td>{issue.category}</td>
                 <td>{issue.status}</td>
-                <td>{issue.priority}</td>
+                <td>
+                  {issue.priority === 'high' 
+                    ? <span className="badge badge-error">Boosted</span>
+                    : <span className="badge badge-ghost">Normal</span>}
+                </td>
                 <td>{issue.assignedStaff ? issue.assignedStaff.name : '-'}</td>
                 <td className="flex gap-2">
                   {!issue.assignedStaff && (
@@ -118,11 +135,40 @@ const AdminAllIssues = () => {
         </table>
       </div>
 
+      {/* Pagination */}
+      <div className="flex justify-center mt-6">
+        <div className="join">
+          <button
+            className="join-item btn"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(prev => prev - 1)}
+          >
+            «
+          </button>
+          <button className="join-item btn btn-active">
+            Page {currentPage}
+          </button>
+          <button
+            className="join-item btn"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(prev => prev + 1)}
+          >
+            »
+          </button>
+        </div>
+      </div>
+
+      <p className="text-center text-sm text-gray-500 mt-2">
+        Showing {startIndex + 1} to {Math.min(endIndex, sortedIssues.length)} of {sortedIssues.length} issues
+      </p>
+
       {/* Assign Staff Modal */}
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40">
           <div className="bg-white p-6 rounded shadow-lg w-96">
-            <h3 className="text-xl font-bold mb-4">Assign Staff to "{selectedIssue.title}"</h3>
+            <h3 className="text-xl font-bold mb-4">
+              Assign Staff to "{selectedIssue.title}"
+            </h3>
             <select
               value={selectedStaff}
               onChange={(e) => setSelectedStaff(e.target.value)}
@@ -154,4 +200,4 @@ const AdminAllIssues = () => {
   );
 };
 
-export default AdminAllIssues;
+export default AdminAllIssue;

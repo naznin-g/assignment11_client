@@ -6,38 +6,38 @@ import AuthLayout from "../layouts/AuthLayout";
 import DashboardLayout from "../layouts/DashboardLayout";
 
 /* ================= PUBLIC Pages ================= */
-import Home from "../Pages/Home/Home";
+import Home from "../Pages/Home/Home/Home";
 import AllIssues from "../Pages/AllIssues/AllIssues";
 import IssueDetails from "../Pages/IssueDetails/IssueDetails";
 import TrackIssue from "../Pages/TrackIssue/TrackIssue";
-import LatestResolvedIssues from "../Pages/LatestResolvedIssues/LatestResolvedIssues";
+import LatestResolvedIssue from "../Pages/LatestResolvedIssue/LatestResolvedIssue";
 
-import About from "../Pages/About/About";
-import Contact from "../Pages/Contact/Contact";
-import NotFound from "../Pages/NotFound/NotFound";
+//import About from "../Pages/About/About";
+//import Contact from "../Pages/Contact/Contact";
+//import NotFound from "../Pages/NotFound/NotFound";
 
 /* ================= AUTH Pages ================= */
-import Login from "../Pages/Auth/Login";
-import Register from "../Pages/Auth/Register";
+import Login from "../Pages/Auth/Login/Login";
+import Register from "../Pages/Auth/Register/Register";
 
 /* ================= CITIZEN ================= */
-import CitizenDashboard from "../Pages/Citizen/Dashboard";
+import CitizenDashboard from "../Pages/Citizen/CitizenDashboard";
 import MyIssues from "../Pages/Citizen/MyIssues";
 import ReportIssue from "../Pages/Citizen/ReportIssue";
 import CitizenProfile from "../Pages/Citizen/Profile";
 
 /* ================= STAFF ================= */
-import StaffDashboard from "../Pages/Staff/Dashboard";
+import StaffDashboard from "../Pages/Staff/StaffDashboard";
 import AssignedIssues from "../Pages/Staff/AssignedIssues";
-import StaffProfile from "../Pages/Staff/Profile";
+import StaffProfile from "../Pages/Staff/StaffProfile";
 
 /* ================= ADMIN ================= */
-import AdminDashboard from "../Pages/Admin/Dashboard";
-import AdminAllIssues from "../Pages/Admin/AllIssues";
+import AdminDashboard from "../Pages/Admin/AdminDashboard";
+import AdminAllIssues from "../Pages/Admin/AdminAllIssue";
 import ManageUsers from "../Pages/Admin/ManageUsers";
 import ManageStaff from "../Pages/Admin/ManageStaff";
-import Payments from "../Pages/Admin/Payments";
-import AdminProfile from "../Pages/Admin/Profile";
+import Payments from "../Pages/Admin/Payment";
+import AdminProfile from "../Pages/Admin/AdminProfile";
 
 /* ================= ROUTE GUARDS ================= */
 import PrivateRoute from "./PrivateRoute";
@@ -54,7 +54,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Home /> },
       { path: "all-issues", element: <AllIssues /> },
-      { path: "latest-resolved", element: <LatestResolvedIssues /> }, // <--- NEW
+      { path: "latest-resolved", element: <LatestResolvedIssue /> }, 
       {
         path: "issue/:id",
         element: (

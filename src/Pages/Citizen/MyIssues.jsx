@@ -5,22 +5,25 @@ import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 const statusColors = {
-  pending: 'bg-yellow-200 text-yellow-800',
-  'in-progress': 'bg-blue-200 text-blue-800',
-  working: 'bg-purple-200 text-purple-800',
-  resolved: 'bg-green-200 text-green-800',
-  closed: 'bg-gray-200 text-gray-800',
+  pending: 'badge badge-warning',
+  'in-progress': 'badge badge-info',
+  working: 'badge badge-primary',
+  resolved: 'badge badge-success',
+  closed: 'badge badge-ghost',
 };
 
 const priorityColors = {
-  normal: 'bg-gray-100 text-gray-800',
-  high: 'bg-red-200 text-red-800',
+  normal: 'badge badge-ghost',
+  high: 'badge badge-error',
 };
 
 const MyIssues = () => {
   const axiosSecure = useAxiosSecure();
   const [filterStatus, setFilterStatus] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // number of issues per page
 
+  // Fetch issues
   const { data: issues = [], refetch } = useQuery({
     queryKey: ['my-issues', filterStatus],
     queryFn: async () => {
@@ -48,6 +51,12 @@ const MyIssues = () => {
     });
   };
 
+  // Pagination calculations
+  const totalPages = Math.ceil(issues.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedIssues = issues.slice(startIndex, endIndex);
+
   return (
     <div className="p-8">
       <h2 className="text-3xl font-bold mb-6">My Issues</h2>
@@ -57,7 +66,10 @@ const MyIssues = () => {
         <label className="font-semibold">Filter by status:</label>
         <select
           value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
+          onChange={(e) => {
+            setFilterStatus(e.target.value);
+            setCurrentPage(1); // reset page when filter changes
+          }}
           className="select select-bordered"
         >
           <option value="all">All</option>
@@ -69,10 +81,10 @@ const MyIssues = () => {
         </select>
       </div>
 
-      {/* Issues Table */}
+      {/* Table */}
       <div className="overflow-x-auto">
         <table className="table table-zebra w-full">
-          <thead className="bg-base-200">
+          <thead>
             <tr>
               <th>Image</th>
               <th>Title</th>
@@ -85,8 +97,8 @@ const MyIssues = () => {
             </tr>
           </thead>
           <tbody>
-            {issues.map((issue) => (
-              <tr key={issue._id} className="hover:bg-base-100 transition">
+            {paginatedIssues.map(issue => (
+              <tr key={issue._id}>
                 <td>
                   {issue.image && (
                     <img
@@ -98,61 +110,58 @@ const MyIssues = () => {
                 </td>
                 <td>{issue.title}</td>
                 <td>{issue.category}</td>
-                <td>
-                  <span
-                    className={`px-2 py-1 rounded-full text-sm font-semibold ${
-                      statusColors[issue.status] || 'bg-gray-100 text-gray-800'
-                    }`}
-                  >
-                    {issue.status}
-                  </span>
-                </td>
-                <td>
-                  <span
-                    className={`px-2 py-1 rounded-full text-sm font-semibold ${
-                      priorityColors[issue.priority] || 'bg-gray-100 text-gray-800'
-                    }`}
-                  >
-                    {issue.priority}
-                  </span>
-                </td>
+                <td><span className={statusColors[issue.status] || 'badge badge-ghost'}>{issue.status}</span></td>
+                <td><span className={priorityColors[issue.priority] || 'badge badge-ghost'}>{issue.priority}</span></td>
                 <td>{issue.location}</td>
                 <td>{issue.upvotes || 0}</td>
                 <td className="flex flex-col gap-1">
                   {issue.status === 'pending' && (
                     <>
-                      <Link
-                        to={`/dashboard/edit-issue/${issue._id}`}
-                        className="btn btn-sm btn-warning w-full"
-                      >
-                        Edit
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(issue._id)}
-                        className="btn btn-sm btn-error w-full"
-                      >
-                        Delete
-                      </button>
+                      <Link to={`/dashboard/edit-issue/${issue._id}`} className="btn btn-sm btn-warning w-full">Edit</Link>
+                      <button onClick={() => handleDelete(issue._id)} className="btn btn-sm btn-error w-full">Delete</button>
                     </>
                   )}
-                  <Link
-                    to={`/issue/${issue._id}`}
-                    className="btn btn-sm btn-primary w-full"
-                  >
-                    View Details
-                  </Link>
+                  <Link to={`/issue/${issue._id}`} className="btn btn-sm btn-primary w-full">View Details</Link>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        {issues.length === 0 && (
-          <p className="text-center mt-6 text-gray-500">No issues found.</p>
-        )}
+        {issues.length === 0 && <p className="text-center mt-6 text-gray-500">No issues found.</p>}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-6">
+          <div className="join">
+            <button
+              className="join-item btn"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(prev => prev - 1)}
+            >
+              «
+            </button>
+            <button className="join-item btn btn-active">
+              Page {currentPage}
+            </button>
+            <button
+              className="join-item btn"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(prev => prev + 1)}
+            >
+              »
+            </button>
+          </div>
+        </div>
+      )}
+
+      <p className="text-center text-sm text-gray-500 mt-2">
+        Showing {startIndex + 1} to {Math.min(endIndex, issues.length)} of {issues.length} issues
+      </p>
     </div>
   );
 };
 
 export default MyIssues;
+
 
