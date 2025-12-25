@@ -1,9 +1,8 @@
 import React from 'react';
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet } from 'react-router-dom';
 import { FaTasks, FaUserCircle, FaClipboardList, FaCheckCircle, FaUsers, FaUserTie, FaFileInvoiceDollar, FaChartPie } from 'react-icons/fa';
 import useRole from '../hooks/useRole';
 import useAuth from '../hooks/useAuth';
-import logoImg from '../assets/logo.png';
 
 const DashboardLayout = () => {
   const { role } = useRole();
@@ -36,35 +35,46 @@ const DashboardLayout = () => {
       <div className="drawer-side">
         <label htmlFor="dashboard-drawer" className="drawer-overlay"></label>
         <div className="flex min-h-full flex-col bg-base-200 w-64 p-4">
-          <Link to="/"><img src={logoImg} alt="UrbanCare Logo" className="mb-6" /></Link>
+          
+          {/* User Info */}
+          <div className="mb-6 text-center">
+            {user?.photoURL && (
+              <img src={user.photoURL} alt="User" className="w-16 h-16 rounded-full mx-auto mb-2" />
+            )}
+            <p className="font-semibold">{user?.displayName}</p>
+            <p className="text-sm text-gray-500">{role?.toUpperCase()}</p>
+          </div>
+
+          {/* Menu Links */}
           <ul className="menu w-full">
             {/* Citizen Links */}
             {role === 'citizen' && (
               <>
-                <li><NavLink to="/dashboard/my-issues"><FaTasks /> My Issues</NavLink></li>
-                <li><NavLink to="/dashboard/report-issue"><FaClipboardList /> Report Issue</NavLink></li>
-                <li><NavLink to="/dashboard/profile"><FaUserCircle /> Profile</NavLink></li>
+                <li><NavLink to="/my-dashboard/citizen"><FaChartPie /> Summary</NavLink></li>
+                <li><NavLink to="/my-dashboard/citizen/my-issues"><FaTasks /> My Issues</NavLink></li>
+                <li><NavLink to="/my-dashboard/citizen/report-issue"><FaClipboardList /> Report Issue</NavLink></li>
+                <li><NavLink to="/my-dashboard/citizen/profile"><FaUserCircle /> Profile</NavLink></li>
               </>
             )}
 
             {/* Staff Links */}
             {role === 'staff' && (
               <>
-                <li><NavLink to="/dashboard"><FaTasks /> Dashboard</NavLink></li>
-                <li><NavLink to="/dashboard/assigned-issues"><FaClipboardList /> Assigned Issues</NavLink></li>
-                <li><NavLink to="/dashboard/profile"><FaUserCircle /> Profile</NavLink></li>
+                <li><NavLink to="/my-dashboard/staff"><FaChartPie /> Dashboard</NavLink></li>
+                <li><NavLink to="/my-dashboard/staff/assigned-issues"><FaClipboardList /> Assigned Issues</NavLink></li>
+                <li><NavLink to="/my-dashboard/staff/profile"><FaUserCircle /> Profile</NavLink></li>
               </>
             )}
 
             {/* Admin Links */}
             {role === 'admin' && (
               <>
-                <li><NavLink to="/dashboard"><FaChartPie /> Dashboard</NavLink></li>
-                <li><NavLink to="/dashboard/all-issues"><FaTasks /> All Issues</NavLink></li>
-                <li><NavLink to="/dashboard/users"><FaUsers /> Users</NavLink></li>
-                <li><NavLink to="/dashboard/staff"><FaUserTie /> Staff</NavLink></li>
-                <li><NavLink to="/dashboard/payments"><FaFileInvoiceDollar /> Payments</NavLink></li>
-                <li><NavLink to="/dashboard/profile"><FaUserCircle /> Profile</NavLink></li>
+                <li><NavLink to="/my-dashboard/admin"><FaChartPie /> Dashboard</NavLink></li>
+                <li><NavLink to="/my-dashboard/admin/all-issues"><FaTasks /> All Issues</NavLink></li>
+                <li><NavLink to="/my-dashboard/admin/users"><FaUsers /> Users</NavLink></li>
+                <li><NavLink to="/my-dashboard/admin/staff"><FaUserTie /> Staff</NavLink></li>
+                <li><NavLink to="/my-dashboard/admin/payments"><FaFileInvoiceDollar /> Payments</NavLink></li>
+                <li><NavLink to="/my-dashboard/admin/profile"><FaUserCircle /> Profile</NavLink></li>
               </>
             )}
           </ul>

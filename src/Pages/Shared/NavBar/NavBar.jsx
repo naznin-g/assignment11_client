@@ -1,66 +1,117 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Logo from '../../../Component/Logo/Logo';
-import { Link, NavLink } from 'react-router';
+import { Link, NavLink } from 'react-router-dom';
 import useAuth from '../../../hooks/useAuth';
+import useAxiosSecure from '../../../hooks/useAxiosSecure';
 
 const NavBar = () => {
-
     const { user, logOut } = useAuth();
+    const axiosSecure = useAxiosSecure();
+    const [dbUser, setDbUser] = useState(null); 
+    const [role, setRole] = useState('');
+
+   useEffect(() => {
+  if (user?.email) {
+    axiosSecure.get(`/users?email=${user.email}`)
+      .then(res => {
+        const mongoUser = res.data[0];
+        setDbUser(mongoUser);
+        setRole(mongoUser?.role || 'citizen');
+      })
+      .catch(err => console.error(err));
+  }
+}, [user]);
 
     const handleLogOut = () => {
-        logOut()
-            .then()
-            .catch(error => {
-                console.log(error)
-            })
-    }
+        logOut().catch(err => console.log(err));
+    };
 
-    const links = <>
-        <li><NavLink to="">Services</NavLink></li>
-        <li><NavLink to="/send-parcel">Send a Parcel</NavLink></li>
-        <li><NavLink to="/rider">Be a Rider</NavLink></li>
-        <li><NavLink to="/coverage">Coverage Areas</NavLink></li>
-        {
-            user && <>
-                <li><NavLink to="/dashboard/my-parcels">My Parcels</NavLink></li>
-                <li><NavLink to="/dashboard">Dashboard</NavLink></li>
-            </>
-        }
-        <li><NavLink to="">About Us</NavLink></li>
+    // Role-based dashboard link
+    const dashboardLink =
+        role === 'admin' ? '/admin/dashboard' :
+        role === 'staff' ? '/staff/dashboard' :
+        '/citizen/dashboard';
 
-    </>
     return (
-        <div className="navbar bg-base-100 shadow-sm">
+        <div className="navbar bg-base-100 shadow-sm px-4">
+            {/* Left: Logo */}
             <div className="navbar-start">
-                <div className="dropdown">
-                    <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16" /> </svg>
-                    </div>
-                    <ul
-                        tabIndex="-1"
-                        className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
-                        {links}
-                    </ul>
-                </div>
-                <span className="btn btn-ghost text-xl">
-                    <Logo></Logo>
-                </span>
+                <Logo />
             </div>
+
+            {/* Center: Links */}
             <div className="navbar-center hidden lg:flex">
                 <ul className="menu menu-horizontal px-1">
-                    {links}
+                    <li><NavLink to="/">Home</NavLink></li>
+                    <li><NavLink to="/allIssues">All Issues</NavLink></li>
+                    <li><NavLink to="/track-issue">Track Issue</NavLink></li>
+                    <li><NavLink to="/about">About</NavLink></li>
+                    <li><NavLink to="/contact">Contact</NavLink></li>
+
+                    {user && (
+                        <li><NavLink to="/my-dashboard">My Dashboard</NavLink></li>
+                    )}
                 </ul>
             </div>
-            <div className="navbar-end">
-                {
-                    user ?
-                        <a onClick={handleLogOut} className="btn">Log Out</a>
-                        : <Link className='btn' to="/login">Log in</Link>
-                }
-                <Link
-                    className='btn btn-primary text-black mx-4'
-                    to="/rider">Be a Rider</Link>
+
+            {/* Right: Login / User info */}
+            <div className="navbar-end flex items-center gap-4">
+                {!user ? (
+                    <Link to="/login" className="btn btn-primary text-white">
+                        Login
+                    </Link>
+                ) : (
+                    <div className="flex items-center gap-2">
+  <img
+    src={dbUser?.photoURL || user?.photoURL }
+    alt={dbUser?.displayName || user?.displayName }
+    className="w-8 h-8 rounded-full"
+  />
+  <span className="font-medium">
+    {dbUser?.displayName || user?.displayName }
+  </span>
+  <button onClick={handleLogOut} className="btn btn-primary text-white">
+    Log Out
+  </button>
+</div>
+
+                )}
             </div>
+
+            {/* Mobile menu */}
+ <div className="navbar-end lg:hidden pr-6">
+  <div className="dropdown dropdown-end">
+    <label tabIndex={0} className="btn btn-ghost">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-5 w-5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M4 6h16M4 12h16M4 18h16"
+        />
+      </svg>
+    </label>
+    <ul
+      tabIndex={0}
+      className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
+    >
+      <li><NavLink to="/">Home</NavLink></li>
+      <li><NavLink to="/allIssues">All Issues</NavLink></li>
+      <li><NavLink to="/track-issue">Track Issue</NavLink></li>
+      <li><NavLink to="/about">About</NavLink></li>
+      <li><NavLink to="/contact">Contact</NavLink></li>
+      {user && <li><NavLink to="/my-dashboard">My Dashboard</NavLink></li>}
+    </ul>
+  </div>
+</div>
+
+
         </div>
     );
 };

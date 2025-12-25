@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "userName": "Alice Johnson",
+    "review": "Amazing service! Really helped me resolve my issue quickly.",
+    "user_photoURL": ""
+  },
+  {
+    "id": 2,
+    "userName": "Bob Smith",
+    "review": "Staff were friendly and very professional. Highly recommend!",
+    "user_photoURL": ""
+  },
+  {
+    "id": 3,
+    "userName": "Catherine Lee",
+    "review": "The system is very easy to use and the response time is great.",
+    "user_photoURL": ""
+  },
+  {
+    "id": 4,
+    "userName": "David Kim",
+    "review": "Quick resolution and excellent support from the team.",
+    "user_photoURL": ""
+  },
+  {
+    "id": 5,
+    "userName": "Emma Williams",
+    "review": "I am very satisfied with the service and the helpful staff.",
+    "user_photoURL": ""
+  }
+]

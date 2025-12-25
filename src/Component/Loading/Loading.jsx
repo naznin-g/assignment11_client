@@ -1,20 +1,9 @@
-import Lottie from "react-lottie";
-import loadingAnimation from "../../assets/json/loading.json";
+import ReactLoading from "react-loading";
 
-const Loading = () => {
-  return (
-    <div className="flex flex-col items-center justify-center gap-5">
-      <div className="max-w-sm relative">
-        <Lottie
-          options={{
-            animationData: loadingAnimation,
-            autoplay: true,
-            loop: true,
-          }}
-        ></Lottie>
-      </div>
-    </div>
-  );
-};
-
+const Loading = () => (
+  <div className="flex justify-center items-center h-screen">
+    <ReactLoading type="spin" color="#4A90E2" height={100} width={100} />
+  </div>
+);
 export default Loading;
+

@@ -4,7 +4,7 @@ import useAuth from './useAuth';
 import { useNavigate } from 'react-router';
 
 const axiosSecure = axios.create({
-    baseURL: 'https://localhost:3000'
+    baseURL: import.meta.env.VITE_API_URL
 })
 
 const useAxiosSecure = () => {
@@ -13,18 +13,21 @@ const useAxiosSecure = () => {
 
     useEffect(() => {
         // intercept request
-        const reqInterceptor = axiosSecure.interceptors.request.use(config => {
-            config.headers.Authorization = `Bearer ${user?.accessToken}`
-            return config
-        })
-
+       const reqInterceptor = axiosSecure.interceptors.request.use(async (config) => {
+    if (user) {                                 // check if user exists
+        const token = await user.getIdToken(); // get Firebase token dynamically
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
         // interceptor response
         const resInterceptor = axiosSecure.interceptors.response.use((response) => {
             return response;
         }, (error) => {
             console.log(error);
 
-            const statusCode = error.status;
+            const statusCode = error.response?.status; 
+
             if (statusCode === 401 || statusCode === 403) {
                 logOut()
                     .then(() => {
