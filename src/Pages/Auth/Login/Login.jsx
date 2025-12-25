@@ -1,30 +1,30 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import useAuth from '../../../hooks/useAuth';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router';
 import SocialLogin from '../SocialLogin/SocialLogin';
-import axios from 'axios';
-import useAxiosSecure from '../../../hooks/useAxiosSecure';
-import Swal from 'sweetalert2';
 
 const Login = () => {
     const { register, handleSubmit, formState: { errors } } = useForm();
-    const { SignInUser } = useAuth();
-    //const axiosSecure = useAxiosSecure();
-   const location = useLocation();
-   const navigate = useNavigate();
+    const { signInUser } = useAuth();
+    const location = useLocation();
+    const navigate = useNavigate();
 
-    const handleLogin=(data)=>{
+
+    const handleLogin = (data) => {
         console.log('form data', data);
-        SignInUser(data.email, data.password)
-        .then(result=>{
-            console.log(result.user)
-            navigate(location?.state||'/')
-        })
-        .catch(error=>{
-            console.log(error)
-        })
+        signInUser(data.email, data.password)
+            .then(result => {
+                console.log(result.user)
+                navigate(location?.state || '/')
+            })
+            .catch(error => {
+                console.log(error)
+            })
     }
+
+
+
 
     return (
         <div className="card bg-base-100 w-full mx-auto max-w-sm shrink-0 shadow-2xl">

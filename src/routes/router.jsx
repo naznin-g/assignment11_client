@@ -15,7 +15,7 @@ import NotFound from "../Component/NotFound/NotFound";
 
 import Login from "../Pages/Auth/Login/Login";
 import Register from "../Pages/Auth/Register/Register";
-//import DashboardLayout from "../layouts/DashboardLayout";
+import DashboardLayout from "../layouts/DashboardLayout";
 
 import MyDashboard from "../Pages/MyDashboard/MyDashboard";
 import CitizenDashboard from "../Pages/Citizen/CitizenDashboard";
@@ -60,19 +60,18 @@ export const router = createBrowserRouter([
       /* ================= DASHBOARD (ROLE-BASED) ================= */
       {
         path: "my-dashboard",
-        element: <PrivateRoute><MyDashboard/></PrivateRoute>,
+        element: <PrivateRoute><DashboardLayout></DashboardLayout></PrivateRoute>,
         children: [
-          {path:"citizen",
-            element:<citizenRoute><DashboardLayout/></citizenRoute>,
-            children:[
+          {index:true, element:<MyDashboard></MyDashboard>},
+            
           
           /* -------- Citizen -------- */
-          {path:"", element:<CitizenRoute><CitizenDashboard/></CitizenRoute>},
+          {path:"citizen", element:<CitizenRoute><CitizenDashboard/></CitizenRoute>},
           { path: "citizen/my-issues", element: <CitizenRoute><MyIssues /></CitizenRoute> },
           { path: "citizen/report-issue", element: <CitizenRoute><BlockedGuard><ReportIssue /></BlockedGuard></CitizenRoute> },
           { path: "citizen/profile", element: <CitizenRoute><CitizenProfile /></CitizenRoute> },
-            ]
-          },
+            
+          
           /* -------- Staff -------- */
           { path: "assigned-issues", element: <StaffRoute><AssignedIssues /></StaffRoute> },
           { path: "staff-profile", element: <StaffRoute><StaffProfile /></StaffRoute> },

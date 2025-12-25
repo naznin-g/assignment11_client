@@ -30,7 +30,7 @@ const NavBar = () => {
     const dashboardLink =
         role === 'admin' ? '/admin/dashboard' :
         role === 'staff' ? '/staff/dashboard' :
-        '/citizen/dashboard';
+        '/my-dashboard/citizen';
 
     return (
         <div className="navbar bg-base-100 shadow-sm px-4">
@@ -49,7 +49,7 @@ const NavBar = () => {
                     <li><NavLink to="/contact">Contact</NavLink></li>
 
                     {user && (
-                        <li><NavLink to="/my-dashboard">My Dashboard</NavLink></li>
+                        <li><NavLink to={dashboardLink}>My Dashboard</NavLink></li>
                     )}
                 </ul>
             </div>

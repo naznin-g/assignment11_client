@@ -3,10 +3,14 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { FaTasks, FaUserCircle, FaClipboardList, FaCheckCircle, FaUsers, FaUserTie, FaFileInvoiceDollar, FaChartPie } from 'react-icons/fa';
 import useRole from '../hooks/useRole';
 import useAuth from '../hooks/useAuth';
+import Loading from '../Component/Loading/Loading';
 
 const DashboardLayout = () => {
-  const { role } = useRole();
+  const { role, roleLoading } = useRole();
   const { user } = useAuth();
+  if (roleLoading){
+    return <Loading/>
+  }
 
   return (
     <div className="drawer lg:drawer-open max-w-7xl mx-auto">
@@ -50,31 +54,31 @@ const DashboardLayout = () => {
             {/* Citizen Links */}
             {role === 'citizen' && (
               <>
-                <li><NavLink to="/my-dashboard/citizen"><FaChartPie /> Summary</NavLink></li>
-                <li><NavLink to="/my-dashboard/citizen/my-issues"><FaTasks /> My Issues</NavLink></li>
-                <li><NavLink to="/my-dashboard/citizen/report-issue"><FaClipboardList /> Report Issue</NavLink></li>
-                <li><NavLink to="/my-dashboard/citizen/profile"><FaUserCircle /> Profile</NavLink></li>
+                <li><NavLink to="."><FaChartPie /> Summary</NavLink></li>
+                <li><NavLink to="my-issues"><FaTasks /> My Issues</NavLink></li>
+                <li><NavLink to="report-issue"><FaClipboardList /> Report Issue</NavLink></li>
+                <li><NavLink to="profile"><FaUserCircle /> Profile</NavLink></li>
               </>
             )}
 
             {/* Staff Links */}
             {role === 'staff' && (
               <>
-                <li><NavLink to="/my-dashboard/staff"><FaChartPie /> Dashboard</NavLink></li>
-                <li><NavLink to="/my-dashboard/staff/assigned-issues"><FaClipboardList /> Assigned Issues</NavLink></li>
-                <li><NavLink to="/my-dashboard/staff/profile"><FaUserCircle /> Profile</NavLink></li>
+                <li><NavLink to="."><FaChartPie /> Summary</NavLink></li>
+                <li><NavLink to="assigned-issues"><FaClipboardList /> Assigned Issues</NavLink></li>
+                <li><NavLink to="profile"><FaUserCircle /> Profile</NavLink></li>
               </>
             )}
 
             {/* Admin Links */}
             {role === 'admin' && (
               <>
-                <li><NavLink to="/my-dashboard/admin"><FaChartPie /> Dashboard</NavLink></li>
-                <li><NavLink to="/my-dashboard/admin/all-issues"><FaTasks /> All Issues</NavLink></li>
-                <li><NavLink to="/my-dashboard/admin/users"><FaUsers /> Users</NavLink></li>
-                <li><NavLink to="/my-dashboard/admin/staff"><FaUserTie /> Staff</NavLink></li>
-                <li><NavLink to="/my-dashboard/admin/payments"><FaFileInvoiceDollar /> Payments</NavLink></li>
-                <li><NavLink to="/my-dashboard/admin/profile"><FaUserCircle /> Profile</NavLink></li>
+                <li><NavLink to="."><FaChartPie /> Dashboard</NavLink></li>
+                <li><NavLink to="all-issues"><FaTasks /> All Issues</NavLink></li>
+                <li><NavLink to="users"><FaUsers /> Users</NavLink></li>
+                <li><NavLink to="staff"><FaUserTie /> Staff</NavLink></li>
+                <li><NavLink to="payments"><FaFileInvoiceDollar /> Payments</NavLink></li>
+                <li><NavLink to="profile"><FaUserCircle /> Profile</NavLink></li>
               </>
             )}
           </ul>
