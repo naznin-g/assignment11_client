@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import useAxiosSecure from '../../hooks/useAxiosSecure';
-import { useNavigate } from 'react-router';
+import { useNavigate, useLoaderData } from 'react-router';
 import Swal from 'sweetalert2';
 import useAuth from '../../hooks/useAuth';
 
 const ReportIssue = () => {
     const { user } = useAuth();
-    const { register, handleSubmit, formState: { errors } } = useForm();
+    const { register, control,handleSubmit, formState: { errors } } = useForm();
     const axiosSecure = useAxiosSecure();
     const navigate = useNavigate();
     const [issueCount, setIssueCount] = useState(0);
@@ -27,7 +27,22 @@ const ReportIssue = () => {
         };
         if (user) fetchUserData();
     }, [user, axiosSecure]);
+     const serviceCenters = useLoaderData();
 
+    const regionsDuplicate=serviceCenters.map(c=>c.region)
+    const regions = [...new Set(regionsDuplicate)];
+
+// Watch selected region from form
+            const region = useWatch({
+  control,
+  name: 'region'
+});
+
+    const districtsByRegion = (region) => {
+        const regionDistricts = serviceCenters.filter(c => c.region === region);
+        const districts = regionDistricts.map(d => d.district);
+        return districts;
+    }
     const handleReport = async (data) => {
         if (isBlocked) {
             Swal.fire('Blocked!', 'You are blocked and cannot submit issues.', 'warning');
@@ -40,7 +55,7 @@ const ReportIssue = () => {
                 text: 'Free users can only submit 3 issues. Subscribe to report more.',
                 icon: 'info',
                 confirmButtonText: 'Go to Profile',
-            }).then(() => navigate('/dashboard/profile'));
+            }).then(() => navigate('/profile'));
             return;
         }
 
@@ -61,9 +76,16 @@ const ReportIssue = () => {
                 description: data.description,
                 category: data.category,
                 image: photoURL,
-                location: data.location,
+                location: {
+                district: data.district,
+                region: data.region,
+                address: data.location,
+                },
+
                 status: 'pending',
                 priority: 'normal',
+                createdBy:user?.email,
+                createdAt:new Date()
             };
 
             // Save issue in backend
@@ -140,12 +162,26 @@ const ReportIssue = () => {
 
                 <div>
                     <label className="label">Location</label>
-                    <input
-                        type="text"
-                        placeholder="Enter location"
-                        {...register('location', { required: true })}
-                        className="input input-bordered w-full"
-                    />
+                    <fieldset className="fieldset">
+                            <legend className="fieldset-legend"> Districts</legend>
+                    <select {...register('region')} defaultValue="Pick a region" className="select">
+                                <option disabled={true}>Pick a region</option>
+                                {
+                                    regions.map((r, i) => <option key={i} value={r}>{r}</option>)
+                                }
+                            </select>
+                            </fieldset>
+
+                    <fieldset className="fieldset">
+                            <legend className="fieldset-legend"> Districts</legend>
+                            <select {...register('district')} defaultValue="Pick a district" className="select">
+                                <option disabled={true}>Pick a district</option>
+                                {
+                                    districtsByRegion(region).map((r, i) => <option key={i} value={r}>{r}</option>)
+                                }
+                            </select>
+                        </fieldset>
+
                     {errors.location && <span className="text-red-500">Location is required</span>}
                 </div>
 

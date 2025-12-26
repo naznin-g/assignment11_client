@@ -67,9 +67,13 @@ export const router = createBrowserRouter([
           
           /* -------- Citizen -------- */
           {path:"citizen", element:<CitizenRoute><CitizenDashboard/></CitizenRoute>},
-          { path: "citizen/my-issues", element: <CitizenRoute><MyIssues /></CitizenRoute> },
-          { path: "citizen/report-issue", element: <CitizenRoute><BlockedGuard><ReportIssue /></BlockedGuard></CitizenRoute> },
-          { path: "citizen/profile", element: <CitizenRoute><CitizenProfile /></CitizenRoute> },
+          { path: "my-issues", element: <CitizenRoute><MyIssues /></CitizenRoute> },
+          { path: "report-issue", 
+            element: <CitizenRoute><BlockedGuard><ReportIssue />
+            </BlockedGuard></CitizenRoute>,
+            loader: () => fetch('/serviceCenters.json').then(res => res.json()) },
+
+          { path: "profile", element: <CitizenRoute><CitizenProfile /></CitizenRoute> },
             
           
           /* -------- Staff -------- */

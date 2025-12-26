@@ -23,7 +23,7 @@ const CitizenDashboard = () => {
 
   return (
     <div className="p-6">
-      <h2 className="text-3xl font-semibold mb-6">Citizen Dashboard</h2>
+      
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">

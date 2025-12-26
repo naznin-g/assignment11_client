@@ -24,7 +24,7 @@ const DashboardLayout = () => {
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </label>
-          <div className="px-4 text-xl font-bold">UrbanCare Dashboard</div>
+          <div className="px-4 text-xl font-bold">My Dashboard</div>
           <div className="ml-auto flex items-center gap-4">
             {user?.photoURL && <img src={user.photoURL} alt="User" className="w-10 h-10 rounded-full" />}
             <span>{user?.displayName}</span>
