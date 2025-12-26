@@ -89,18 +89,18 @@ const ReportIssue = () => {
             };
 
             // Save issue in backend
-            const res = await axiosSecure.post('/citizen/issues', issuePayload);
+            const res = await axiosSecure.post('/issues', issuePayload);
 
             if (res.data.insertedId) {
                 // Optionally, create a tracking record
-                await axiosSecure.post('/citizen/issues/tracking', {
-                    issueId: res.data.insertedId,
-                    status: 'pending',
-                    actionBy: user?.email,
-                });
-
+              //  await axiosSecure.post('/citizen/issues/tracking', {
+                //    issueId: res.data.insertedId,
+                  //  status: 'pending',
+                    //actionBy: user?.email,
+                //});
+                
                 Swal.fire('Success!', 'Issue reported successfully.', 'success');
-                navigate('/dashboard/my-issues');
+                navigate('/my-dashboard/my-issues');
             }
         } catch (err) {
             console.error(err);
@@ -163,7 +163,7 @@ const ReportIssue = () => {
                 <div>
                     <label className="label">Location</label>
                     <fieldset className="fieldset">
-                            <legend className="fieldset-legend"> Districts</legend>
+                            <legend className="fieldset-legend"> Region</legend>
                     <select {...register('region')} defaultValue="Pick a region" className="select">
                                 <option disabled={true}>Pick a region</option>
                                 {
@@ -172,7 +172,7 @@ const ReportIssue = () => {
                             </select>
                             </fieldset>
 
-                    <fieldset className="fieldset">
+                    <fieldset className="fieldset w-full">
                             <legend className="fieldset-legend"> Districts</legend>
                             <select {...register('district')} defaultValue="Pick a district" className="select">
                                 <option disabled={true}>Pick a district</option>
@@ -181,6 +181,16 @@ const ReportIssue = () => {
                                 }
                             </select>
                         </fieldset>
+                        <fieldset className="fieldset">
+  <legend className="fieldset-legend">Address</legend>
+
+  <textarea
+    className="textarea textarea-bordered"
+    placeholder="Enter full address"
+    rows={3}
+    {...register('address', { required: true })}
+  ></textarea>
+</fieldset>
 
                     {errors.location && <span className="text-red-500">Location is required</span>}
                 </div>
